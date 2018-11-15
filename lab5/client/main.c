@@ -11,9 +11,15 @@ int main()
     key_t key=5678;
     s_info * sh;
     int shmid;
-    shmid=shmget(key, 27, 0444);
+    shmid=shmget(key, sizeof(s_info), 0444);
+
     sh=(s_info*)shmat(shmid, NULL, SHM_RDONLY);
+     if(sh==-1){
+   perror("can't share memory");
+   return -1;
+   }
     printf("SERVER INFO:\n PID: %d\t UID: %d \t GID : %d \n", sh->pid, sh->uid, sh->gid);
     printf("%s", ctime(&sh->tm));
+    shmdt(sh);
     return 0;
 }
