@@ -1,8 +1,8 @@
-#include <semaphore.h>
-#include <stdlib.h>
-extern sem;
 
-void * thread_inverse( char * array){
+#include <stdlib.h>
+
+
+void inverse( char * array){
 int i=0;
 if((array[i]=='a')||(array[i]=='z')){
 for(i=0;i<26;i++){
@@ -15,7 +15,5 @@ for(i=0;i<26;i++){
 array[i]+=32;
 }
 }
-sem_post(sem);
-
-return NULL;
+return;
 }
