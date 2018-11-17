@@ -13,35 +13,49 @@ shmdt(sh);
 printf("ok");
  exit(0);
 }
+
 int main()
 {
-///todo: sysload avg helios
 
-    time_t tm;
-    key_t key=5678;
+    key_t key=5648;
     int shmid;
-
-
 
     //get shared segment
    shmid=shmget(key,sizeof(s_info), IPC_CREAT|0666);
+    if(sh==-1){
+   perror("can't get shared memory id");
+   return EXIT_FAILURE;
+   }
    sh = (s_info *) shmat(shmid,NULL,0);
     if(sh==-1){
    perror("can't share memory");
-   return 1;
+   return EXIT_FAILURE;
    }
 //make a structure of data
-  sh->pid = getpid();
- sh->uid= getuid();
+sh->pid = getpid();
+if(sh->pid ==-1){
+perror("can't get pid");
+return EXIT_FAILURE;
+}
+sh->uid= getuid();
+if(sh->uid ==-1){
+perror("can't get uid");
+return EXIT_FAILURE;
+}
  sh->gid = getgid();
+ if(sh->gid ==-1){
+perror("can't get gid");
+return EXIT_FAILURE;
+}
 //signal handling
-
 signal( SIGINT, sig_handler);
 
 while (1){
+
 sh->tm =time(NULL);
+getloadavg(sh->load, 3);
 sleep(1);
 }
-
+return EXIT_SUCCESS;
 }
 
