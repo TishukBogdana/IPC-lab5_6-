@@ -5,15 +5,20 @@
 #include <semaphore.h>
 #include "header.h"
 sem_t* sem;
+void print_arr(const char * arr, int size);
 int main()
 {
-int i=0;
+int i=0, test;
 pthread_t thread_inv;
 pthread_t thread_rev;
     char array[26] = {0};
     char init='a';
      sem = (sem_t*) malloc(sizeof(sem_t));
-    sem_init(sem, 0, 0);
+  test =  sem_init(sem, 0, 0);
+if(test==-1){
+perror("");
+return EXIT_FAILURE;
+}
     for(i=0;i<26;i++){
     array[i]=init;
     init++;
@@ -35,12 +40,22 @@ pthread_create(&thread_inv, NULL , thread_inverse, array);
 
 
 void * thread_reverse(char* array){
+int ch;
 reverse(array);
-sem_post(sem);
+ch=sem_post(sem);
+if(ch==-1){
+perror("");
+return EXIT_FAILURE;
+}
 }
 void * thread_inverse(char* array){
+int ch;
 inverse(array);
 sem_post(sem);
+if(ch==-1){
+perror("");
+return EXIT_FAILURE;
+}
 }
 
 void print_arr(const char * arr, int size){
