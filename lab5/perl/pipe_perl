@@ -1,0 +1,11 @@
+#!/usr/bin/perl
+use English;
+open(FILE, "< @ARGV[0]");
+open(STDOUT, "| wc"); 
+while(my $line=<FILE>){
+@spl = split(//,$line);
+for($i=0;$i<scalar(@spl);$i+=2){
+print STDOUT $spl[$i];
+}
+
+}
