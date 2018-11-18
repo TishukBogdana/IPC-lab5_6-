@@ -1,0 +1,50 @@
+#! /usr/bin/perl -w
+#use Sys::CpuLoad qw/getload/;
+use strict;
+use English;
+use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
+
+my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
+my @days = qw(Sun Mon Tue Wed Thu Fri Sat Sun);
+
+ sub handler{ 
+my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
+print ( "TIME: ", $year+1900, " ", $months[$mon], " ",$days[$mday], " " , $hour, ":" , $min, ":", $sec ) ;
+print( "PID: \t", $PID, " UID:\t ", $UID, "\n" );
+print( "GID: \t", $GID, "\n" );
+
+sleep(1);
+die;
+ };
+$SIG{INT} =\&handler;
+$SIG{TERM} =\&handler;
+$SIG{HUP} =\&handler;
+$SIG{USR1} =\&handler;
+$SIG{USR2} =\&handler;
+my $SOCK_PATH = 'sock';
+unlink($SOCK_PATH) if -e $SOCK_PATH;
+
+my $server = IO::Socket::UNIX->new(
+   Type => SOCK_STREAM(),
+    Local => $SOCK_PATH,
+   Listen => SOMAXCONN,
+)
+   or die("Can't create server socket: $!\n");
+
+while (1) {
+my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
+#my @load = getload();
+    my $connection = $server->accept;
+$connection->print( "SERVER INFO:\n");
+$connection->print( "PID: \t", $PID, " UID:\t ", $UID, "\n" );
+$connection->print( "GID: \t", $GID, "\n" );
+$connection->print ( "TIME: ", $year+1900, " ", $months[$mon], " ",$days[$mday], " " , $hour, ":" , $min, ":", $sec ) ;
+#$connection->print (@load);
+ $connection->close();      
+}
+
+
+
+
+
+

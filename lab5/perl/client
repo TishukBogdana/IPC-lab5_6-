@@ -1,0 +1,26 @@
+#!/usr/bin/perl 
+
+use strict;
+
+use IO::Socket::UNIX qw( SOCK_STREAM );
+
+my $SOCK_PATH = 'sock';
+
+my $client = IO::Socket::UNIX->new(
+   Type => SOCK_STREAM(),
+   Peer => $SOCK_PATH
+)
+   or die("Can't connect to server: $!\n");
+
+$client->autoflush(1);
+
+
+    while (my $line = <$client>) {
+        if ($line){
+            chomp($line);
+            print(  $line , "\n");
+        }
+    }
+
+
+
