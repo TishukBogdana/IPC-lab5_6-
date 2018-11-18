@@ -12,7 +12,6 @@ array[25-i]=tmp;
 
 }
 
-
 return ;
 
 }
