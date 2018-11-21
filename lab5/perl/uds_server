@@ -1,19 +1,20 @@
 #! /usr/bin/perl -w
-#use Sys::CpuLoad qw/getload/;
+#use Sys::Load;
 use strict;
 use English;
 use IO::Socket::UNIX qw( SOCK_STREAM SOMAXCONN );
 
 my @months = qw( Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec );
 my @days = qw(Sun Mon Tue Wed Thu Fri Sat Sun);
-
+my @grp = split(/ /,$GID);
  sub handler{ 
+my $output = qx(uptime);
+my @load = split(/ +/,$output);
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
-print ( "TIME: ", $year+1900, " ", $months[$mon], " ",$days[$mday], " " , $hour, ":" , $min, ":", $sec ) ;
+print ( "TIME: ", $year+1900, " ", $months[$mon], " ",$mday, " ",$days[$wday], " " , $hour, ":" , $min, ":", $sec , "\n") ;
 print( "PID: \t", $PID, " UID:\t ", $UID, "\n" );
-print( "GID: \t", $GID, "\n" );
-
-sleep(1);
+print( "GID: \t", $grp[0], "\n" );
+print ("LOAD: ", $load[scalar(@load)-3], " ",$load[scalar(@load)-2], " ", $load[scalar(@load)-1]);
 die;
  };
 $SIG{INT} =\&handler;
@@ -33,13 +34,14 @@ my $server = IO::Socket::UNIX->new(
 
 while (1) {
 my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
-#my @load = getload();
+my $output = qx(uptime);
+my @load = split(/ +/,$output);
     my $connection = $server->accept;
 $connection->print( "SERVER INFO:\n");
 $connection->print( "PID: \t", $PID, " UID:\t ", $UID, "\n" );
-$connection->print( "GID: \t", $GID, "\n" );
-$connection->print ( "TIME: ", $year+1900, " ", $months[$mon], " ",$days[$mday], " " , $hour, ":" , $min, ":", $sec ) ;
-#$connection->print (@load);
+$connection->print( "GID: \t", $grp[0], "\n" );
+$connection->print ( "TIME: ", $year+1900, " ", $months[$mon], " ",$mday, " ",$days[$wday], " " , $hour, ":" , $min, ":", $sec , "\n") ;
+$connection->print ("LOAD: ", $load[scalar(@load)-3],  " ",$load[scalar(@load)-2], " ", $load[scalar(@load)-1]);
  $connection->close();      
 }
 
