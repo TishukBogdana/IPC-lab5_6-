@@ -9,12 +9,21 @@
 #include <string.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <signal.h>
+int con_fd;
+void segv_handler(){
+printf("use");
+close(con_fd);
+return;
+
+}
+
 int main()
 {
-    int con_fd, res, i, num, len =0;
+    int  res, i, num, len =0;
     struct sockaddr_in serv_addr;
-
-
+signal(SIGSEGV, segv_handler);
+    char * resv;
     char * buf = (char*) malloc(sizeof(char)*5);
     serv_addr.sin_family=AF_INET;
     serv_addr.sin_addr.s_addr=INADDR_ANY;
@@ -37,31 +46,47 @@ int main()
       len = atoi(buf);
       read(con_fd, buf, 5);
       num = atoi(buf);
-      buf=(char*) malloc(len);
-      send_data(buf,con_fd);
-
+      buf=(char*) malloc(len*sizeof(char));
+      resv = (char *)malloc(len*sizeof(char));
+      read(con_fd, buf, len);
+     for(i=0;i<num;i++){
+      strcpy(resv, buf);
+      strtok(resv, " ");
+      send_data(resv, con_fd);
+      buf = buf+strlen(resv);
       }
+      sprintf(buf, "%d", strlen("/"));
+ write(con_fd, buf, 5);
+      write(con_fd, "/", strlen("/") );
 }
 
-
-
-
-    return 0;
+}
+return 0;
 }
 void send_data(char * dirname, int con_fd){
+
+   char * len = (char*) malloc(sizeof(char)*5);
    struct dirent * entry;
    DIR * dir  = opendir (dirname);
    if(dir==NULL){
    perror("");
+   return;
    }
+   sprintf(len, "%d", strlen(dirname)+6);
+  write(con_fd, len, 5);
+    write(con_fd, "--", strlen("--") );
+   write(con_fd, dirname, strlen(dirname) );
+      write(con_fd, "--", strlen("--") );
   do{
   entry = readdir(dir);
- if(entry) write(con_fd, entry->d_name, strlen(entry->d_name));
+ if(entry) {
+ sprintf(len, "%d", strlen(entry->d_name));
+ write(con_fd, len, 5);
+ write(con_fd, entry->d_name, strlen(entry->d_name));
+ }
   }while(entry);
   closedir(dir);
+  return;
  }
  ///todo: try with get_data, error handle
 
-char ** delim(){
-   char * get,resv;
-}

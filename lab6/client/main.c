@@ -7,9 +7,17 @@
 #include <errno.h>
 #include <string.h>
 #include <arpa/inet.h>
+
+
+
 int main(int argc, char * argv[])
-{         int sock_fd, i, len=0;
-    char buf[5];
+{
+
+
+ int sock_fd, i, len=0;
+
+    char  buf[5];
+    char * resv ;
      struct sockaddr_in cli_addr;
    cli_addr.sin_family=AF_INET;
     cli_addr.sin_addr.s_addr=INADDR_ANY;
@@ -32,8 +40,16 @@ int main(int argc, char * argv[])
      for(i=2;i<argc;i++){
      write(sock_fd, argv[i], strlen(argv[i]));
      write(sock_fd, " ", strlen(" "));
-
      }
-    read (sock_fd, buf, 18);
-    printf("%s", buf);
+while(1){
+
+ read(sock_fd, buf, 5);
+len = atoi(buf);
+resv= (char* )malloc(len*sizeof(char));
+read(sock_fd, resv, len);
+if(!strcmp(resv,"/")) break;
+write(1, resv, len);
+write(1, "\n", strlen("\n"));
+}
+return 0;
 }
