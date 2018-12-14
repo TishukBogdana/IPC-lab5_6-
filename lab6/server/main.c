@@ -51,9 +51,12 @@ signal(SIGSEGV, segv_handler);
       read(con_fd, buf, len);
      for(i=0;i<num;i++){
       strcpy(resv, buf);
-      strtok(resv, " ");
+      strtok(resv, "_");
+     write(1, resv, strlen(resv) );
+     write(1, "\n", strlen("\n") );
+     //удивительный костыль
       send_data(resv, con_fd);
-      buf = buf+strlen(resv);
+      buf = buf+strlen(resv)+1;
       }
       sprintf(buf, "%d", strlen("/"));
  write(con_fd, buf, 5);
@@ -67,16 +70,19 @@ void send_data(char * dirname, int con_fd){
 
    char * len = (char*) malloc(sizeof(char)*5);
    struct dirent * entry;
+
    DIR * dir  = opendir (dirname);
+
    if(dir==NULL){
+
    perror("");
    return;
    }
-   sprintf(len, "%d", strlen(dirname)+6);
+   sprintf(len, "%d", strlen(dirname));
   write(con_fd, len, 5);
-    write(con_fd, "--", strlen("--") );
+
    write(con_fd, dirname, strlen(dirname) );
-      write(con_fd, "--", strlen("--") );
+
   do{
   entry = readdir(dir);
  if(entry) {
@@ -89,4 +95,5 @@ void send_data(char * dirname, int con_fd){
   return;
  }
  ///todo: try with get_data, error handle
+
 
